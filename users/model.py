@@ -7,6 +7,6 @@ class Users(Base): #Users model
 
     user_id: Mapped[int] = mapped_column(primary_key=True)
     email:Mapped[str]
-    password: Mapped[str]
+    password: Mapped[bytes]
     role:Mapped[str]
 

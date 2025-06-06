@@ -6,6 +6,7 @@ from database import Base, engine
 from users.router import router as user_router
 from products.router import router as product_router
 from orders.router import router as order_router
+from auth.router import router as auth_router
 
 app = FastAPI()
 
@@ -16,6 +17,7 @@ Base.metadata.create_all(bind=engine) #Create all tables on start
 app.include_router(user_router)
 app.include_router(product_router)
 app.include_router(order_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def root():

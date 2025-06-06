@@ -9,6 +9,12 @@ def add_user(db: Session,email:str,password:str,role: str): #Create new user
     db.refresh(user)
     return user
 
+def get_all_users(db: Session): #Get user by user_id
+    return db.query(Users).all()
+
+def get_user_by_email(db: Session, email: str): #Get user by user_id
+    return db.query(Users).filter(Users.email == email).first()
+
 def get_user_by_user_id(db: Session, user_id: int): #Get user by user_id
     return db.query(Users).filter(Users.user_id == user_id).first()
 
