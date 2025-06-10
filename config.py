@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 import os
 
+
 load_dotenv()
 
 class Config:
@@ -16,7 +17,7 @@ class Config:
   SECRET_KEY_PATH=os.getenv("SECRET_KEY_PATH")
   PUBLIC_KEY_PATH=os.getenv("PUBLIC_KEY_PATH")
   JWT_ALGORITM=os.getenv("JWT_ALGORITM")
-  ACCESS_TTL_MIN = os.getenv('JWT_ACCESS_TTL')
+  ACCESS_TTL_MIN = 25
   
   def __init__(self) -> None:
     try:

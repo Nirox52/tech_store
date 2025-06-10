@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from users.crud import *
 from database import SessionLocal
-from users.schema import UserShemaAuth, UserShemaCreate
 
 router = APIRouter(prefix="/users",tags=["Users"])
 
@@ -13,16 +12,10 @@ def get_db():
     finally:
         db.close()
 
-def validate_user():
-    pass
 
-@router.post("/",tags=["Users"]) #Create new user
-# def create_user(email:str,password:str,role: str, db: Session = Depends(get_db)):
-#     return add_user(db,email,password, role)
-def create_user(user:UserShemaCreate = Depends(None), db: Session = Depends(get_db)):
-    return add_user(db,user.email,user.password, user.role)
+#TODO:make avalible only for workers
 
-@router.get("/",tags=["Users"]) #Create new user
+@router.get("/",tags=["Users"]) #Get all users
 def get_all(db: Session = Depends(get_db)):
     return get_all_users(db)
 

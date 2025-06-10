@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from products.model import Products
+from products.product import Products
 
 def add_product(db: Session,name:str,price:int,amount:int,type:str): #Create new product
     product = Products(name=name,price=price,amount=amount,type=type)

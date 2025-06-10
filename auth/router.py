@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, status
+from jwt.exceptions import InvalidTokenError
 from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 from auth.crud import add_user, get_user_by_email
 from auth.token import Token
@@ -29,7 +30,11 @@ def validate_user(email:str=Form(),password:str=Form(),db: Session = Depends(get
 
 def validate_auth_user(token_credentials:HTTPAuthorizationCredentials=Depends(http_bearer),db: Session = Depends(get_db)):
     token = token_credentials.credentials
-    data = decode_jwt(token)
+    try:
+        data = decode_jwt(token)
+    except InvalidTokenError as err:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED,detail='Invalid token')
+
     user = get_user_by_email(db,data.get('email'))
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED,'Invalid token')
@@ -37,17 +42,19 @@ def validate_auth_user(token_credentials:HTTPAuthorizationCredentials=Depends(ht
     
 
 @router.post('/login/',response_model=Token)
-def auth_user(user:UserShemaAuth=Depends(validate_user),db: Session = Depends(get_db)):
+def auth_user(user:UserShemaAuth=Depends(validate_user),
+              db: Session = Depends(get_db)):
     data={"user_id":user.user_id,
           "email":user.email}
     token = encode_jwt(data)
     return Token(token=token,token_type='Bearer')
 
 @router.post('/register/',response_model=UserShemaCreate)
-def register_user(user:UserShemaCreate,db: Session = Depends(get_db)):
+def register_user(user:UserShemaCreate,
+                  db: Session = Depends(get_db)):
     add_user(db,user)
     return user
 
 @router.get('/user/me/')
-def get_me(user:UserShemaAuth = Depends(validate_auth_user),db:Session = Depends(get_db)):
+def get_me(user:UserShemaAuth = Depends(validate_auth_user)):
     return {"email":user.email,"role":user.role}

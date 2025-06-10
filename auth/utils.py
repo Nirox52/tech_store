@@ -1,7 +1,12 @@
 from datetime import datetime, time, timedelta
+from fastapi import HTTPException, status
 import jwt
+from jwt.exceptions import InvalidTokenError
 import bcrypt
 from config import CONFIG
+from users.model import Role
+
+WORKERS_DICT=[Role.ADMIN,Role.SELLER,Role.CONSULTANT]
 
 def encode_jwt(data:dict,token_timedelta:timedelta|None=None):
     now = datetime.utcnow()
@@ -23,3 +28,8 @@ def hash_password(password:str):
 
 def check_password(hashed_password:bytes,password:str):
     return bcrypt.checkpw(password.encode(),hashed_password)
+
+def check_if_user_is_worker(user,detail='Forbidden'):
+    if not user.role in WORKERS_DICT:
+        raise HTTPException(status.HTTP_403_FORBIDDEN,detail=detail)
+
