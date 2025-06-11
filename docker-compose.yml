@@ -1,21 +1,37 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  postgres:
-    image: postgres:latest
-    container_name: practice
-    restart: always
+  test_db:
+    image: postgres:15
+    container_name: TEST_DB
     environment:
-      POSTGRES_USER: 'postgres'
-      POSTGRES_PASSWORD: 'postgres'
-      POSTGRES_DB: 'tech_shop'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tech_shop
     ports:
-      - "5431:5432"
+      - "5433:5432"
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fast_api:
+    build: .
+    container_name: fast_API
+    depends_on:
+      test_db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        uv sync
+        uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-
-volumes:
-  postgres_data:
-
-
+      - .:/app
+    ports:
+      - "5555:8000"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/tech_shop
