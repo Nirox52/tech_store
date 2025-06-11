@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth.utils import check_if_user_is_worker
-from config import CONFIG
 from orders.crud import *
 from database import SessionLocal
 from orders.orders import OrderStatus
 from orders.shema import  OrderShemaBase, OrderShemaCreate
-from users.model import Role
+from products.crud import subtract_product
 from users.schema import UserSchemaBase, UserShema
 from auth.router import validate_auth_user
 
@@ -19,16 +18,16 @@ def get_db():
     finally:
         db.close()
 
-def validate_order(order:OrderShemaBase):
-    #TODO:Add product check
-    print(order.user_id,order.product_id)
+def validate_order(order:OrderShemaBase,db:Session = Depends(get_db)):
+    print('VALIDATE ORDER')
     return order
 
 
 @router.post("/",tags=["Orders"],response_model=OrderShemaBase)
-def create_order(order:OrderShemaCreate ,
+def create_order(order:OrderShemaCreate,
                  user:UserShema = Depends(validate_auth_user), 
                  db:Session=Depends(get_db)):
+    subtract_product(db,order.product_id)
     order_to_create = OrderShemaBase(
                     product_id=order.product_id,
                     status=OrderStatus.Unconfirmed,
@@ -40,6 +39,7 @@ def create_order(order:OrderShemaCreate ,
 def get_order_by_id(order_id: int,
                     user:UserSchemaBase = Depends(validate_auth_user), 
                     db: Session = Depends(get_db)):
+    check_if_user_is_worker(user)
     return get_order_by_order_id(db, order_id)
 
 @router.get("/user/date/",tags=["Orders"])
@@ -77,11 +77,13 @@ def pay_order(order_id: int,
     if order:
         if order.user_id != user.user_id:
             raise HTTPException(status.HTTP_403_FORBIDDEN,detail='Wrong order tried to pay')
+        if order.status == OrderStatus.Unconfirmed:
+            raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE,'Your order hasn\'t confirmed yet')
     else:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     return update_oreder_status(db,order_id,OrderStatus.Paid)
 
-@router.post("/confirm/{order_id}",tags=["Orders"],response_model=OrderShemaBase)
+@router.post("/status/{order_id}",tags=["Orders"],response_model=OrderShemaBase)
 def confirm_order(order_id:int,
                   order_status:OrderStatus = OrderStatus.Confirmed,
                   user:UserSchemaBase = Depends(validate_auth_user),

@@ -29,6 +29,12 @@ def create_product(product:ProductShemaBase,
     check_if_user_is_worker(user)
     return add_product(db,product.name,product.price,product.amount,product.type)
 
+@router.get("/",tags=["Products"]) #Get all products
+def get_products(user:UserSchemaBase=Depends(validate_auth_user),
+                 db:Session=Depends(get_db)):
+    check_if_user_is_worker(user)
+    return get_all_products(db)
+
 @router.get("/{product_id}",tags=["Products"]) #Get product by product_id
 def get_product(product_id: int,
                 user:UserSchemaBase = Depends(validate_auth_user), 

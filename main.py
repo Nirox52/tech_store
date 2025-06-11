@@ -21,4 +21,4 @@ app.include_router(auth_router)
 
 @app.get("/")
 def root():
-    return RedirectResponse('http://127.0.0.1:8000/docs') #Redirect to documentation
+    return {"message":"Tech shop API"}
