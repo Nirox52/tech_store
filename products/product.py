@@ -1,6 +1,12 @@
+import enum
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 
+class ProductType(enum.Enum):
+    Phone = 'phone'
+    Laptop = 'laptop'
+    Household= 'household'
+    Other = 'other'
 
 class Products(Base): #Products model
     __tablename__="products"
@@ -9,4 +15,4 @@ class Products(Base): #Products model
     name: Mapped[str]
     price: Mapped[int]
     amount: Mapped[int]
-    type: Mapped[str]
+    type: Mapped[ProductType]

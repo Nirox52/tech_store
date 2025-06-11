@@ -5,6 +5,7 @@ from auth.router import validate_auth_user
 from auth.utils import check_if_user_is_worker
 from products.crud import *
 from database import SessionLocal
+from products.product import ProductType
 from products.schema import ProductShemaBase
 from users.model import Role
 from users.schema import  UserSchemaBase, UserShemaAuth
@@ -41,6 +42,12 @@ def get_product(product_id: int,
                 db: Session = Depends(get_db)):
     check_if_user_is_worker(user)
     return get_product_by_product_id(db, product_id)
+
+@router.get("/type/",tags=["Products"]) #Get product by product_type
+def get_product_by_type(product_type: ProductType,
+                user:UserSchemaBase = Depends(validate_auth_user), 
+                db: Session = Depends(get_db)):
+    return get_product_by_product_tyupe(db, product_type)
 
 @router.delete("/{product_id}",tags=["Products"]) #Delete product by product_id
 def delete_product(product_id: int,
