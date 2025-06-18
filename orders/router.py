@@ -18,10 +18,6 @@ def get_db():
     finally:
         db.close()
 
-def validate_order(order:OrderShemaBase,db:Session = Depends(get_db)):
-    print('VALIDATE ORDER')
-    return order
-
 
 @router.post("/",tags=["Orders"],response_model=OrderShemaBase)
 def create_order(order:OrderShemaCreate,
@@ -69,22 +65,22 @@ def get_my_orders(user:UserShema= Depends(validate_auth_user),
                   db: Session = Depends(get_db)):
     return get_order_by_user_id(db,user.user_id)
 
-@router.get("/pay/{order_id}",tags=["Orders"])
+@router.patch("/pay/{order_id}",tags=["Orders"])
 def pay_order(order_id: int, 
               user:UserShema= Depends(validate_auth_user), 
               db: Session = Depends(get_db)):
     order = get_order_by_order_id(db,order_id)
-    if order:
-        if order.user_id != user.user_id:
+    if order: #Check if order is exist
+        if order.user_id != user.user_id: #Check if user_id = user_id in the order
             raise HTTPException(status.HTTP_403_FORBIDDEN,detail='Wrong order tried to pay')
-        if order.status == OrderStatus.Unconfirmed:
+        if order.status == OrderStatus.Unconfirmed: #Check if order status is not unconfirmed
             raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE,'Your order hasn\'t confirmed yet')
     else:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     return update_oreder_status(db,order_id,OrderStatus.Paid)
 
-@router.post("/status/{order_id}",tags=["Orders"],response_model=OrderShemaBase)
-def confirm_order(order_id:int,
+@router.patch("/status/{order_id}",tags=["Orders"],response_model=OrderShemaBase)
+def update_status(order_id:int,
                   order_status:OrderStatus = OrderStatus.Confirmed,
                   user:UserSchemaBase = Depends(validate_auth_user),
                   db:Session = Depends(get_db)):

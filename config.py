@@ -1,4 +1,5 @@
 #File for settings  from .env
+
 from dotenv import load_dotenv
 import os
 
@@ -20,13 +21,13 @@ class Config:
   ACCESS_TTL_MIN = 25
   
   def __init__(self) -> None:
-    try:
+    try: #Reading secret key from file
       with open(self.SECRET_KEY_PATH,'r') as f:
         self.SECRET_KEY = f.read()
     except:
       exit(1)
 
-    try:
+    try: #Reading public key from file
       with open(self.PUBLIC_KEY_PATH,'r') as f:
         self.PUBLIC_KEY = f.read()
     except:

@@ -41,6 +41,13 @@ def validate_auth_user(token_credentials:HTTPAuthorizationCredentials=Depends(ht
     return user
     
 
+
+@router.post('/register/',response_model=UserShemaCreate)
+def register_user(user:UserShemaCreate,
+                  db: Session = Depends(get_db)):
+    add_user(db,user)
+    return user
+
 @router.post('/login/',response_model=Token)
 def auth_user(user:UserShemaAuth=Depends(validate_user),
               db: Session = Depends(get_db)):
@@ -48,12 +55,6 @@ def auth_user(user:UserShemaAuth=Depends(validate_user),
           "email":user.email}
     token = encode_jwt(data)
     return Token(token=token,token_type='Bearer')
-
-@router.post('/register/',response_model=UserShemaCreate)
-def register_user(user:UserShemaCreate,
-                  db: Session = Depends(get_db)):
-    add_user(db,user)
-    return user
 
 @router.get('/user/me/')
 def get_me(user:UserShemaAuth = Depends(validate_auth_user)):

@@ -1,13 +1,17 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 from products.product import ProductType
 
-class ProductShemaBase(BaseModel):
+class ProductShemaCreate(BaseModel):
     name:str
-    price:int
+    price:float
     amount:int
     type:ProductType
+
+class ProductShemaBase(ProductShemaCreate):
+    created_at:datetime
 
 class ProductShema(ProductShemaBase):
     product_id:int

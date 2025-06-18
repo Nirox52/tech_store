@@ -6,7 +6,7 @@ from auth.utils import check_if_user_is_worker
 from products.crud import *
 from database import SessionLocal
 from products.product import ProductType
-from products.schema import ProductShemaBase
+from products.schema import ProductShemaBase, ProductShemaCreate
 from users.model import Role
 from users.schema import  UserSchemaBase, UserShemaAuth
 
@@ -24,7 +24,7 @@ def get_db():
 
 
 @router.post("/",tags=["Products"],response_model=ProductShemaBase) #Create product
-def create_product(product:ProductShemaBase,
+def create_product(product:ProductShemaCreate,
                    user:UserSchemaBase=Depends(validate_auth_user),
                    db:Session=Depends(get_db)):
     check_if_user_is_worker(user)
@@ -34,6 +34,7 @@ def create_product(product:ProductShemaBase,
 def get_products(user:UserSchemaBase=Depends(validate_auth_user),
                  db:Session=Depends(get_db)):
     check_if_user_is_worker(user)
+    check_all_products_with_diskount(db)
     return get_all_products(db)
 
 @router.get("/{product_id}",tags=["Products"]) #Get product by product_id
@@ -41,12 +42,14 @@ def get_product(product_id: int,
                 user:UserSchemaBase = Depends(validate_auth_user), 
                 db: Session = Depends(get_db)):
     check_if_user_is_worker(user)
+    check_all_products_with_diskount(db)
     return get_product_by_product_id(db, product_id)
 
 @router.get("/type/",tags=["Products"]) #Get product by product_type
 def get_product_by_type(product_type: ProductType,
                 user:UserSchemaBase = Depends(validate_auth_user), 
                 db: Session = Depends(get_db)):
+    check_all_products_with_diskount(db)
     return get_product_by_product_tyupe(db, product_type)
 
 @router.delete("/{product_id}",tags=["Products"]) #Delete product by product_id
