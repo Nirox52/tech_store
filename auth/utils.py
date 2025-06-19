@@ -1,7 +1,6 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 import jwt
-from jwt.exceptions import InvalidTokenError
 import bcrypt
 from config import CONFIG
 from users.model import Role
@@ -30,6 +29,6 @@ def check_password(hashed_password:bytes,password:str):
     return bcrypt.checkpw(password.encode(),hashed_password)
 
 def check_if_user_is_worker(user,detail='Forbidden'):
-    if not user.role in WORKERS_DICT:
+    if user.role not in WORKERS_DICT:
         raise HTTPException(status.HTTP_403_FORBIDDEN,detail=detail)
 

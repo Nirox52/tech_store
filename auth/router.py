@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 from auth.crud import add_user, get_user_by_email
 from auth.token import Token
 from auth.utils import check_password, decode_jwt, encode_jwt
-from users.schema import UserSchemaBase, UserShemaAuth, UserShemaCreate
+from users.schema import UserShemaAuth, UserShemaCreate
 from sqlalchemy.orm import Session
 from database import SessionLocal
 
@@ -32,7 +32,7 @@ def validate_auth_user(token_credentials:HTTPAuthorizationCredentials=Depends(ht
     token = token_credentials.credentials
     try:
         data = decode_jwt(token)
-    except InvalidTokenError as err:
+    except InvalidTokenError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED,detail='Invalid token')
 
     user = get_user_by_email(db,data.get('email'))

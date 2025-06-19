@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from auth.router import validate_auth_user
 from auth.utils import check_if_user_is_worker
@@ -7,8 +7,7 @@ from products.crud import *
 from database import SessionLocal
 from products.product import ProductType
 from products.schema import ProductShemaBase, ProductShemaCreate
-from users.model import Role
-from users.schema import  UserSchemaBase, UserShemaAuth
+from users.schema import  UserSchemaBase
 
 router = APIRouter(prefix="/products",tags=["Products"])
 

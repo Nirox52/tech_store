@@ -1,7 +1,5 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func,update
-from starlette.middleware import P
 from products.product import ProductType, Products
 from datetime import datetime, timedelta
 

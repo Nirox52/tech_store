@@ -1,5 +1,4 @@
 from datetime import date
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from orders.shema import  OrderShemaBase
